@@ -32,7 +32,11 @@ public class AdminUser extends User {
         if (userToBlock != null) {
             // Добавляем пользователя в таблицу заблокированных пользователей
             addBlockedUserToDatabase(userToBlock);
-            System.out.println("User with ID: " + userId + " has been blocked and added to the blocked users table.");
+
+            // Обновляем роль пользователя в таблице users на "blocked"
+            updateUserRoleToBlocked(userToBlock);
+
+            System.out.println("User with ID: " + userId + " has been blocked, added to the blocked users table, and role updated to 'blocked'.");
         } else {
             // Если пользователь с указанным ID не найден
             System.out.println("User with ID " + userId + " not found.");
@@ -57,7 +61,26 @@ public class AdminUser extends User {
             System.out.println("Error adding blocked user to the database: " + e.getMessage());
         }
     }
+
+    // Приватный метод для обновления роли пользователя на 'blocked' в таблице users
+    private void updateUserRoleToBlocked(User user) {
+        // SQL-запрос для обновления роли пользователя на 'blocked'
+        String query = "UPDATE users SET role = ? WHERE user_id = ?";
+
+        try (PreparedStatement preparedStatement = dbHandler.getConnection().prepareStatement(query)) {
+            // Устанавливаем значения параметров запроса
+            preparedStatement.setString(1, "blocked");  // Устанавливаем роль как 'blocked'
+            preparedStatement.setString(2, user.getUserId()); // Устанавливаем user_id
+
+            // Выполняем SQL-запрос
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            // Обрабатываем возможные ошибки при выполнении запроса
+            System.out.println("Error updating user role to 'blocked': " + e.getMessage());
+        }
+    }
 }
+
 
 
 

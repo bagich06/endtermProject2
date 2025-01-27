@@ -1,12 +1,10 @@
-public class BlockedUser {
+public class BlockedUser extends User {
     private String userId;
     private String name;
     private String email;
 
     public BlockedUser(String userId, String name, String email) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
+        super(userId, name, email);
     }
 
     public String getUserId() {
@@ -19,5 +17,10 @@ public class BlockedUser {
 
     public String getEmail() {
         return email;
+    }
+
+    @Override
+    public void accessLibrary() {
+
     }
 }

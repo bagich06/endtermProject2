@@ -23,8 +23,9 @@ public class LibraryManagementSystem {
             System.out.println("5. Add Book");
             System.out.println("6. List All Books");
             System.out.println("7. Find Book by ID");
-            System.out.println("8. Generate Report");
-            System.out.println("9. Exit");
+            System.out.println("8. Borrow Book");
+            System.out.println("9. Generate Report");
+            System.out.println("10. Exit");
             System.out.print("Enter your choice: ");
 
             // Получаем выбор пользователя
@@ -42,13 +43,15 @@ public class LibraryManagementSystem {
                     String email = scanner.nextLine();  // Вводим email
                     System.out.print("Enter user role (admin/regular): ");
                     String role = scanner.nextLine();  // Вводим роль (администратор или обычный пользователь)
+                    System.out.print("Enter borrowed books: ");
+                    int borrowedBooks = scanner.nextInt();
 
                     // Проверяем роль пользователя, если администратор — создаем админа
                     if (role.equalsIgnoreCase("admin")) {
                         User admin = new AdminUser(userId, name, email, userService);  // Создаем администратора
                         userService.addUser(admin);  // Добавляем его в систему
                     } else {  // В противном случае — обычного пользователя
-                        User regularUser = new RegularUser(userId, name, email);
+                        User regularUser = new RegularUser(userId, name, email, borrowedBooks);
                         userService.addUser(regularUser);  // Добавляем обычного пользователя
                     }
                     System.out.println("User added successfully!");  // Подтверждаем успешное добавление
@@ -104,9 +107,11 @@ public class LibraryManagementSystem {
                     String author = scanner.nextLine();  // Вводим автора
                     System.out.print("Enter book genre: ");
                     String genre = scanner.nextLine();  // Вводим жанр
+                    System.out.print("Enter book stock: ");
+                    int stock = Integer.parseInt(scanner.nextLine());
 
                     // Создаем объект книги и добавляем его в систему
-                    Book book = new Book(bookId, title, author, genre);
+                    Book book = new Book(bookId, title, author, genre, stock);
                     bookService.addBook(book);
                     System.out.println("Book added successfully!");  // Подтверждаем успешное добавление
                     break;
@@ -115,7 +120,7 @@ public class LibraryManagementSystem {
                     System.out.println("Listing all books:");
                     // Перебираем все книги и выводим их информацию
                     for (Book b : bookService.listAllBooks()) {
-                        System.out.println("Book ID: " + b.getBookId() + ", Title: " + b.getTitle() + ", Author: " + b.getAuthor() + ", Genre: " + b.getGenre());
+                        System.out.println("Book ID: " + b.getBookId() + ", Title: " + b.getTitle() + ", Author: " + b.getAuthor() + ", Genre: " + b.getGenre() + ", Stock: " + b.getStock());
                     }
                     break;
 
@@ -130,11 +135,27 @@ public class LibraryManagementSystem {
                     }
                     break;
 
-                case 8:  // Генерация отчета
+                case 8:  // Взять книгу
+                    System.out.println("Enter your user ID: ");
+                    String userIdBorrow = scanner.nextLine();  // Вводим ID пользователя
+                    System.out.println("Enter book ID: ");
+                    String bookIdBorrow = scanner.nextLine();  // Вводим ID книги
+
+                    // Получаем единственный экземпляр DatabaseHandler
+                    DatabaseHandler dbHandler = DatabaseHandler.getInstance();  // Используем паттерн Singleton
+                    LibraryManager libraryManager = new LibraryManager(dbHandler);  // Передаем dbHandler в LibraryManager
+
+                    // Используем LibraryManager для взятия книги
+                    libraryManager.borrowBook(userIdBorrow, bookIdBorrow);  // Передаем userId и bookId для обработки
+                    break;
+
+
+
+                case 9:  // Генерация отчета
                     reportService.generateReport();  // Генерируем отчет
                     break;
 
-                case 9:  // Выход из системы
+                case 10:  // Выход из системы
                     System.out.println("Exiting the system.");
                     running = false;  // Закрываем программу, установив флаг в false
                     break;

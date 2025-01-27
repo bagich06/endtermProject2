@@ -25,6 +25,7 @@ public class ReportService implements IReportService {
             System.out.println("Title: " + book.getTitle());
             System.out.println("Author: " + book.getAuthor());
             System.out.println("Genre: " + book.getGenre());
+            System.out.println("Stock: " + book.getStock());
             System.out.println("----------------------------");
         }
 

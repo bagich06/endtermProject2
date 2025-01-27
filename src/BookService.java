@@ -12,7 +12,7 @@ public class BookService implements IBookService {
     public void addBook(Book book) {
         try {
             // SQL-запрос для добавления записи о книге в таблицу "books"
-            String query = "INSERT INTO books (book_id, title, author, genre) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO books (book_id, title, author, genre, stock) VALUES (?, ?, ?, ?, ?)";
 
             PreparedStatement preparedStatement = dbHandler.getConnection().prepareStatement(query);
 
@@ -20,6 +20,8 @@ public class BookService implements IBookService {
             preparedStatement.setString(2, book.getTitle());
             preparedStatement.setString(3, book.getAuthor());
             preparedStatement.setString(4, book.getGenre());
+            preparedStatement.setInt(5, book.getStock());
+
 
             // Выполняем запрос
             preparedStatement.executeUpdate();
@@ -71,9 +73,10 @@ public class BookService implements IBookService {
                 String title = resultSet.getString("title"); // Название книги
                 String author = resultSet.getString("author"); // Автор книги
                 String genre = resultSet.getString("genre"); // Жанр книги
+                int stock = resultSet.getInt("stock");
 
                 // Создаём объект Book с полученными данными
-                book = new Book(bookId, title, author, genre);
+                book = new Book(bookId, title, author, genre, stock);
             }
         } catch (SQLException e) {
             // В случае ошибки выводим информацию об исключении
@@ -101,9 +104,10 @@ public class BookService implements IBookService {
                 String title = resultSet.getString("title"); // Название книги
                 String author = resultSet.getString("author"); // Автор книги
                 String genre = resultSet.getString("genre"); // Жанр книги
+                int stock = resultSet.getInt("stock");
 
                 // Создаём объект Book для каждой строки
-                Book book = new Book(bookId, title, author, genre);
+                Book book = new Book(bookId, title, author, genre, stock);
 
                 // Добавляем книгу в список
                 books.add(book);

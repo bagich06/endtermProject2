@@ -11,7 +11,7 @@ public class UserService implements IUserService {
     public void addUser(User user) {
         try {
             // SQL-запрос для вставки новой записи в таблицу users
-            String query = "INSERT INTO users (user_id, name, email, role) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO users (user_id, name, email, role, borrowedBooks) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = dbHandler.getConnection().prepareStatement(query);
             // Устанавливаем значения параметров в запросе
             preparedStatement.setString(1, user.getUserId()); // ID пользователя
@@ -19,6 +19,13 @@ public class UserService implements IUserService {
             preparedStatement.setString(3, user.getEmail()); // Электронная почта
             // Определяем роль пользователя: "admin" для AdminUser или "regular" для обычного пользователя
             preparedStatement.setString(4, (user instanceof AdminUser) ? "admin" : "regular");
+            if (user instanceof RegularUser) {
+                int borrowedBooks = ((RegularUser) user).getBorrowedBooks();
+                preparedStatement.setInt(5, borrowedBooks);
+            } else {
+                // Если это администратор, значение borrowedBooks будет 0 или NULL
+                preparedStatement.setNull(5, java.sql.Types.INTEGER);
+            }
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -45,6 +52,7 @@ public class UserService implements IUserService {
                 String name = resultSet.getString("name"); // Получаем имя пользователя
                 String email = resultSet.getString("email"); // Получаем email пользователя
                 String role = resultSet.getString("role"); // Получаем роль пользователя
+                int borrowedBooks = resultSet.getInt("borrowedBooks");
 
                 // Создаём экземпляр UserService для передачи в AdminUser
                 UserService userService = new UserService();
@@ -56,7 +64,7 @@ public class UserService implements IUserService {
                     user = new AdminUser(userId, name, email, userService);
                 } else {
                     // Иначе создаём объект RegularUser
-                    user = new RegularUser(userId, name, email);
+                    user = new RegularUser(userId, name, email, borrowedBooks);
                 }
 
                 // Добавляем пользователя в список
@@ -86,6 +94,7 @@ public class UserService implements IUserService {
                 String name = resultSet.getString("name"); // Получаем имя пользователя
                 String email = resultSet.getString("email"); // Получаем email
                 String role = resultSet.getString("role"); // Получаем роль
+                int borrowedBooks = resultSet.getInt("borrowedBooks");
 
                 // Создаём экземпляр UserService для передачи в AdminUser
                 UserService userService = new UserService();
@@ -96,7 +105,7 @@ public class UserService implements IUserService {
                     user = new AdminUser(userId, name, email, userService);
                 } else {
                     // Иначе создаём объект RegularUser
-                    user = new RegularUser(userId, name, email);
+                    user = new RegularUser(userId, name, email, borrowedBooks);
                 }
             }
         } catch (SQLException e) {
