@@ -3,170 +3,141 @@ import java.util.Scanner;
 public class LibraryManagementSystem {
 
     public static void main(String[] args) {
-        // Создаем объекты для управления пользователями, книгами и отчетами
         UserService userService = new UserService();
         BookService bookService = new BookService();
         ReportService reportService = new ReportService();
+        BlockedUserService blockedUserService = new BlockedUserService();
 
         Scanner scanner = new Scanner(System.in);
 
-        boolean running = true;
+        System.out.print("Enter your user ID: ");
+        String userId = scanner.nextLine();
 
-        // Основной цикл программы, который работает, пока не выберем выход
-        while (running) {
-            // Отображаем меню для пользователя
-            System.out.println("\nLibrary Management System");
-            System.out.println("1. Add User");
-            System.out.println("2. List All Users");
-            System.out.println("3. Find User by ID");
-            System.out.println("4. Block User");
-            System.out.println("5. Add Book");
-            System.out.println("6. List All Books");
-            System.out.println("7. Find Book by ID");
-            System.out.println("8. Borrow Book");
-            System.out.println("9. Generate Report");
-            System.out.println("10. Exit");
-            System.out.print("Enter your choice: ");
-
-            // Получаем выбор пользователя
-            int choice = scanner.nextInt();
-            scanner.nextLine();  // Чистим буфер после ввода числа
-
-            // Используем конструкцию switch для обработки выбора пользователя
-            switch (choice) {
-                case 1:  // Добавление нового пользователя
-                    System.out.print("Enter user ID: ");
-                    String userId = scanner.nextLine();  // Вводим ID пользователя
-                    System.out.print("Enter user name: ");
-                    String name = scanner.nextLine();  // Вводим имя пользователя
-                    System.out.print("Enter user email: ");
-                    String email = scanner.nextLine();  // Вводим email
-                    System.out.print("Enter user role (admin/regular): ");
-                    String role = scanner.nextLine();  // Вводим роль (администратор или обычный пользователь)
-                    System.out.print("Enter borrowed books: ");
-                    int borrowedBooks = scanner.nextInt();
-
-                    // Проверяем роль пользователя, если администратор — создаем админа
-                    if (role.equalsIgnoreCase("admin")) {
-                        User admin = new AdminUser(userId, name, email, userService);  // Создаем администратора
-                        userService.addUser(admin);  // Добавляем его в систему
-                    } else {  // В противном случае — обычного пользователя
-                        User regularUser = new RegularUser(userId, name, email, borrowedBooks);
-                        userService.addUser(regularUser);  // Добавляем обычного пользователя
-                    }
-                    System.out.println("User added successfully!");  // Подтверждаем успешное добавление
-                    break;
-
-                case 2:  // Показать всех пользователей
-                    System.out.println("Listing all users:");
-                    // Перебираем всех пользователей и выводим информацию
-                    for (User user : userService.listAllUsers()) {
-                        System.out.println("User ID: " + user.getUserId() + ", Name: " + user.getName() + ", Email: " + user.getEmail());
-                    }
-                    break;
-
-                case 3:  // Поиск пользователя по ID
-                    System.out.print("Enter user ID to find: ");
-                    String searchUserId = scanner.nextLine();  // Вводим ID пользователя для поиска
-                    User foundUser = userService.findUserById(searchUserId);  // Ищем пользователя
-                    if (foundUser != null) {
-                        System.out.println("Found User: " + foundUser.getName());  // Если нашли — выводим его имя
-                    } else {
-                        System.out.println("User not found.");  // Если не нашли — выводим сообщение
-                    }
-                    break;
-
-                case 4:  // Блокировка пользователя (доступ только для администратора)
-                    System.out.print("Enter admin ID to verify: ");
-                    String adminId = scanner.nextLine();  // Вводим ID администратора для проверки
-
-                    // Ищем администратора по введенному ID
-                    User adminUser = userService.findUserById(adminId);
-                    if (adminUser instanceof AdminUser) {  // Проверяем, является ли пользователь администратором
-                        System.out.print("Enter user ID to block: ");
-                        String blockUserId = scanner.nextLine();  // Вводим ID пользователя для блокировки
-
-                        // Ищем пользователя, которого нужно заблокировать
-                        User userToBlock = userService.findUserById(blockUserId);
-                        if (userToBlock != null) {
-                            ((AdminUser) adminUser).blockUser(blockUserId);  // Блокируем пользователя
-                        } else {
-                            System.out.println("User with ID " + blockUserId + " not found.");  // Если не нашли пользователя — выводим сообщение
-                        }
-                    } else {
-                        System.out.println("Only admins can block users.");  // Если это не администратор — выводим сообщение
-                    }
-                    break;
-
-                case 5:  // Добавление новой книги
-                    System.out.print("Enter book ID: ");
-                    String bookId = scanner.nextLine();  // Вводим ID книги
-                    System.out.print("Enter book title: ");
-                    String title = scanner.nextLine();  // Вводим название книги
-                    System.out.print("Enter book author: ");
-                    String author = scanner.nextLine();  // Вводим автора
-                    System.out.print("Enter book genre: ");
-                    String genre = scanner.nextLine();  // Вводим жанр
-                    System.out.print("Enter book stock: ");
-                    int stock = Integer.parseInt(scanner.nextLine());
-
-                    // Создаем объект книги и добавляем его в систему
-                    Book book = new Book(bookId, title, author, genre, stock);
-                    bookService.addBook(book);
-                    System.out.println("Book added successfully!");  // Подтверждаем успешное добавление
-                    break;
-
-                case 6:  // Показать все книги
-                    System.out.println("Listing all books:");
-                    // Перебираем все книги и выводим их информацию
-                    for (Book b : bookService.listAllBooks()) {
-                        System.out.println("Book ID: " + b.getBookId() + ", Title: " + b.getTitle() + ", Author: " + b.getAuthor() + ", Genre: " + b.getGenre() + ", Stock: " + b.getStock());
-                    }
-                    break;
-
-                case 7:  // Поиск книги по ID
-                    System.out.print("Enter book ID to find: ");
-                    String searchBookId = scanner.nextLine();  // Вводим ID книги для поиска
-                    Book foundBook = bookService.findBookById(searchBookId);  // Ищем книгу
-                    if (foundBook != null) {
-                        System.out.println("Found Book: " + foundBook.getTitle());  // Если нашли — выводим название книги
-                    } else {
-                        System.out.println("Book not found.");  // Если не нашли — выводим сообщение
-                    }
-                    break;
-
-                case 8:  // Взять книгу
-                    System.out.println("Enter your user ID: ");
-                    String userIdBorrow = scanner.nextLine();  // Вводим ID пользователя
-                    System.out.println("Enter book ID: ");
-                    String bookIdBorrow = scanner.nextLine();  // Вводим ID книги
-
-                    // Получаем единственный экземпляр DatabaseHandler
-                    DatabaseHandler dbHandler = DatabaseHandler.getInstance();  // Используем паттерн Singleton
-                    LibraryManager libraryManager = new LibraryManager(dbHandler);  // Передаем dbHandler в LibraryManager
-
-                    // Используем LibraryManager для взятия книги
-                    libraryManager.borrowBook(userIdBorrow, bookIdBorrow);  // Передаем userId и bookId для обработки
-                    break;
-
-
-
-                case 9:  // Генерация отчета
-                    reportService.generateReport();  // Генерируем отчет
-                    break;
-
-                case 10:  // Выход из системы
-                    System.out.println("Exiting the system.");
-                    running = false;  // Закрываем программу, установив флаг в false
-                    break;
-
-                default:
-                    System.out.println("Invalid choice, please try again.");  // Если введен неправильный выбор — выводим сообщение
-                    break;
-            }
+        // Проверяем, находится ли пользователь в списке заблокированных
+        BlockedUser blockedUser = blockedUserService.findBlockedUserById(userId);
+        if (blockedUser != null) {
+            System.out.println("You are blocked, Exiting...");
+            return;
         }
 
+        User currentUser = userService.findUserById(userId);
+
+        if (currentUser == null) {
+            System.out.println("User not found. Exiting...");
+            return;
+        }
+
+        boolean isAdmin = currentUser instanceof AdminUser;
+        boolean isRegular = currentUser instanceof RegularUser;
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\nLibrary Management System");
+            if (isAdmin) {
+                System.out.println("1. Add User");
+                System.out.println("2. List All Users");
+                System.out.println("3. Find User by ID");
+                System.out.println("4. Block User");
+                System.out.println("5. Add Book");
+                System.out.println("6. List All Books");
+                System.out.println("7. Find Book by ID");
+                System.out.println("8. Generate Report");
+            } else if (isRegular) {
+                System.out.println("1. Borrow Book");
+            }
+            System.out.println("9. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (isAdmin) {
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter user ID: ");
+                        String newUserId = scanner.nextLine();
+                        System.out.print("Enter user name: ");
+                        String name = scanner.nextLine();
+                        System.out.print("Enter user email: ");
+                        String email = scanner.nextLine();
+                        System.out.print("Enter user role (admin/regular): ");
+                        String role = scanner.nextLine();
+                        System.out.print("Enter borrowed books: ");
+                        int borrowedBooks = scanner.nextInt();
+
+                        User newUser = role.equalsIgnoreCase("admin") ?
+                                new AdminUser(newUserId, name, email, userService) :
+                                new RegularUser(newUserId, name, email, borrowedBooks);
+                        userService.addUser(newUser);
+                        System.out.println("User added successfully!");
+                        break;
+                    case 2:
+                        userService.listAllUsers().forEach(user ->
+                                System.out.println("User ID: " + user.getUserId() + ", Name: " + user.getName()));
+                        break;
+                    case 3:
+                        System.out.print("Enter user ID to find: ");
+                        User foundUser = userService.findUserById(scanner.nextLine());
+                        System.out.println(foundUser != null ? "Found User: " + foundUser.getName() : "User not found.");
+                        break;
+                    case 4:
+                        System.out.print("Enter user ID to block: ");
+                        String blockUserId = scanner.nextLine();
+                        ((AdminUser) currentUser).blockUser(blockUserId);
+                        break;
+                    case 5:
+                        System.out.print("Enter book ID: ");
+                        String bookId = scanner.nextLine();
+                        System.out.print("Enter book title: ");
+                        String title = scanner.nextLine();
+                        System.out.print("Enter book author: ");
+                        String author = scanner.nextLine();
+                        System.out.print("Enter book genre: ");
+                        String genre = scanner.nextLine();
+                        System.out.print("Enter book stock: ");
+                        int stock = Integer.parseInt(scanner.nextLine());
+
+                        bookService.addBook(new Book(bookId, title, author, genre, stock));
+                        System.out.println("Book added successfully!");
+                        break;
+                    case 6:
+                        bookService.listAllBooks().forEach(b ->
+                                System.out.println("Book ID: " + b.getBookId() + ", Title: " + b.getTitle()));
+                        break;
+                    case 7:
+                        System.out.print("Enter book ID to find: ");
+                        Book foundBook = bookService.findBookById(scanner.nextLine());
+                        System.out.println(foundBook != null ? "Found Book: " + foundBook.getTitle() : "Book not found.");
+                        break;
+                    case 8:
+                        reportService.generateReport();
+                        break;
+                    case 9:
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice, try again.");
+                }
+            } else if (isRegular) {
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter book ID: ");
+                        String borrowBookId = scanner.nextLine();
+                        DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+                        new LibraryManager(dbHandler).borrowBook(userId, borrowBookId);
+                        break;
+                    case 9:
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Invalid choice, try again.");
+                }
+            }
+        }
         scanner.close();
     }
 }
+
+
+
 
